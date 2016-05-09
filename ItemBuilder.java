@@ -3,14 +3,16 @@ package us.universalpvp.te.utils;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.block.banner.Pattern;
-import org.bukkit.craftbukkit.libs.jline.internal.Nullable;
 import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -18,6 +20,7 @@ import org.bukkit.inventory.meta.BannerMeta;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.material.MaterialData;
 
 import net.md_5.bungee.api.ChatColor;
@@ -38,7 +41,6 @@ public class ItemBuilder {
 		this.createItem(material);
 	}
 
-	@Nullable
 	private ItemBuilder createItem(Material material) {
 
 		ItemStack item = new ItemStack(material);
@@ -48,7 +50,6 @@ public class ItemBuilder {
 
 	}
 
-	@Nullable
 	private ItemBuilder createItem(ItemStack item) {
 
 		item = new ItemStack(item);
@@ -137,13 +138,6 @@ public class ItemBuilder {
 		return this;
 	}
 
-	public ItemBuilder setItemMeta() {
-
-		item.setItemMeta(meta);
-
-		return this;
-	}
-
 	public ItemBuilder setLeatherArmorColor(Color color) {
 
 		if (!(meta instanceof LeatherArmorMeta))
@@ -180,15 +174,6 @@ public class ItemBuilder {
 		return this;
 	}
 
-	public ItemBuilder set(String... page) {
-
-		BookMeta bookMeta = (BookMeta) meta;
-		bookMeta.addPage(page);
-		item.setItemMeta(bookMeta);
-
-		return this;
-	}
-
 	public ItemBuilder setTitle(String title) {
 
 		BookMeta bookMeta = (BookMeta) meta;
@@ -216,13 +201,49 @@ public class ItemBuilder {
 		return this;
 	}
 
-	public ItemBuilder setNBTTagCompound(String NBTTagType) {
+	public ItemBuilder setNBTTagCompound(String NBTTagCompound) {
 
 		net.minecraft.server.v1_8_R3.ItemStack stack = CraftItemStack.asNMSCopy(item);
 		NBTTagCompound tag = stack.hasTag() ? stack.getTag() : new NBTTagCompound();
-		tag.set(NBTTagType, new NBTTagByte((byte) 1));
+		tag.set(NBTTagCompound, new NBTTagByte((byte) 1));
 		stack.setTag(tag);
 		item = CraftItemStack.asBukkitCopy(stack);
+
+		return this;
+	}
+
+	public ItemBuilder setItemAge(byte age) {
+
+		net.minecraft.server.v1_8_R3.ItemStack stack = CraftItemStack.asNMSCopy(item);
+		NBTTagCompound tag = stack.hasTag() ? stack.getTag() : new NBTTagCompound();
+		tag.set("Age", new NBTTagByte(age));
+		stack.setTag(tag);
+		item = CraftItemStack.asBukkitCopy(stack);
+
+		return this;
+
+	}
+
+	public ItemBuilder setSkullOwner(String player) {
+
+		SkullMeta skullMeta = (SkullMeta) meta;
+		skullMeta.setOwner(player);
+
+		return this;
+	}
+
+	public ItemBuilder setSkullOwner(Player player) {
+
+		SkullMeta skullMeta = (SkullMeta) meta;
+		skullMeta.setOwner(player.getName());
+
+		return this;
+	}
+
+	public ItemBuilder setSkullOwner(UUID uuid) {
+
+		SkullMeta skullMeta = (SkullMeta) meta;
+		skullMeta.setOwner(Bukkit.getPlayer(uuid).getName());
 
 		return this;
 	}
@@ -324,6 +345,14 @@ public class ItemBuilder {
 		return color;
 	}
 
+	public Player getSkullOwner() {
+
+		SkullMeta skullMeta = (SkullMeta) meta;
+		Player p = Bukkit.getPlayer(skullMeta.getOwner());
+
+		return p;
+	}
+
 	public ItemStack clone() {
 		return item.clone();
 	}
@@ -396,8 +425,24 @@ public class ItemBuilder {
 
 	}
 
+	public boolean hasSkullOwner() {
+
+		SkullMeta skullMeta = (SkullMeta) meta;
+		if (!skullMeta.hasOwner()) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
 	public void addToInventory(Inventory inv) {
 		inv.addItem(item.clone());
+	}
+
+	public void buildItem() {
+
+		item.setItemMeta(this.meta);
+
 	}
 
 }
