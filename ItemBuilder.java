@@ -149,6 +149,7 @@ public class ItemBuilder {
 		if (!(meta instanceof LeatherArmorMeta))
 			throw new IllegalArgumentException(
 					"Can't invoke method on this AdvancedItem! Required meta: LeatherArmorMeta");
+					
 		LeatherArmorMeta leatherMeta = (LeatherArmorMeta) meta;
 		leatherMeta.setColor(color);
 		item.setItemMeta(leatherMeta);
@@ -164,6 +165,10 @@ public class ItemBuilder {
 
 	public ItemBuilder addBookPage(String... page) {
 
+		if (!(meta instanceof BookMeta))
+			throw new IllegalArgumentException(
+					"Can't invoke method on this AdvancedItem! Required meta: BookMeta");
+
 		BookMeta bookMeta = (BookMeta) meta;
 		bookMeta.addPage(page);
 		item.setItemMeta(bookMeta);
@@ -173,6 +178,10 @@ public class ItemBuilder {
 
 	public ItemBuilder setBookPage(int page, String data) {
 
+		if (!(meta instanceof BookMeta))
+			throw new IllegalArgumentException(
+					"Can't invoke method on this AdvancedItem! Required meta: BookMeta");
+					
 		BookMeta bookMeta = (BookMeta) meta;
 		bookMeta.setPage(page, data);
 		item.setItemMeta(bookMeta);
@@ -182,6 +191,10 @@ public class ItemBuilder {
 
 	public ItemBuilder set(String... page) {
 
+		if (!(meta instanceof BookMeta))
+			throw new IllegalArgumentException(
+					"Can't invoke method on this AdvancedItem! Required meta: BookMeta");
+					
 		BookMeta bookMeta = (BookMeta) meta;
 		bookMeta.addPage(page);
 		item.setItemMeta(bookMeta);
@@ -191,6 +204,10 @@ public class ItemBuilder {
 
 	public ItemBuilder setTitle(String title) {
 
+		if (!(meta instanceof BookMeta))
+			throw new IllegalArgumentException(
+					"Can't invoke method on this AdvancedItem! Required meta: BookMeta");
+					
 		BookMeta bookMeta = (BookMeta) meta;
 		bookMeta.setTitle(title);
 		item.setItemMeta(bookMeta);
@@ -200,6 +217,10 @@ public class ItemBuilder {
 
 	public ItemBuilder setBannerPattern(int index, Pattern pattern) {
 
+		if (!(meta instanceof BannerMeta))
+			throw new IllegalArgumentException(
+					"Can't invoke method on this AdvancedItem! Required meta: BannerMeta");
+					
 		BannerMeta bannerMeta = (BannerMeta) meta;
 		bannerMeta.setPattern(index, pattern);
 		item.setItemMeta(bannerMeta);
@@ -209,6 +230,10 @@ public class ItemBuilder {
 
 	public ItemBuilder setBannerBaseColor(DyeColor color) {
 
+		if (!(meta instanceof BannerMeta))
+			throw new IllegalArgumentException(
+					"Can't invoke method on this AdvancedItem! Required meta: BannerMeta");
+					
 		BannerMeta bannerMeta = (BannerMeta) meta;
 		bannerMeta.setBaseColor(color);
 		item.setItemMeta(bannerMeta);
@@ -269,6 +294,10 @@ public class ItemBuilder {
 
 	public int getBookPage(int pageNumber) {
 
+		if (!(meta instanceof BookMeta))
+			throw new IllegalArgumentException(
+					"Can't invoke method on this AdvancedItem! Required meta: BookMeta");
+					
 		BookMeta bookMeta = (BookMeta) meta;
 		bookMeta.getPage(pageNumber);
 
@@ -276,6 +305,10 @@ public class ItemBuilder {
 	}
 
 	public int getBookPageCount() {
+
+		if (!(meta instanceof BookMeta))
+			throw new IllegalArgumentException(
+					"Can't invoke method on this AdvancedItem! Required meta: BookMeta");
 
 		BookMeta bookMeta = (BookMeta) meta;
 		int pageCount = bookMeta.getPageCount();
@@ -285,6 +318,10 @@ public class ItemBuilder {
 
 	public List<String> getBookPages() {
 
+		if (!(meta instanceof BookMeta))
+			throw new IllegalArgumentException(
+					"Can't invoke method on this AdvancedItem! Required meta: BookMeta");
+
 		BookMeta bookMeta = (BookMeta) meta;
 		List<String> pages = bookMeta.getPages();
 
@@ -292,6 +329,10 @@ public class ItemBuilder {
 	}
 
 	public String getBookAuthor() {
+
+		if (!(meta instanceof BookMeta))
+			throw new IllegalArgumentException(
+					"Can't invoke method on this AdvancedItem! Required meta: BookMeta");
 
 		BookMeta bookMeta = (BookMeta) meta;
 		String author = bookMeta.getAuthor();
@@ -301,6 +342,10 @@ public class ItemBuilder {
 
 	public String getBookTitle() {
 
+		if (!(meta instanceof BookMeta))
+			throw new IllegalArgumentException(
+					"Can't invoke method on this AdvancedItem! Required meta: BookMeta");
+
 		BookMeta bookMeta = (BookMeta) meta;
 		String title = bookMeta.getTitle();
 
@@ -308,6 +353,10 @@ public class ItemBuilder {
 	}
 
 	public List<Pattern> getBannerPatterns() {
+
+		if (!(meta instanceof BannerMeta))
+			throw new IllegalArgumentException(
+					"Can't invoke method on this AdvancedItem! Required meta: BannerMeta");
 
 		BannerMeta bannerMeta = (BannerMeta) meta;
 		List<Pattern> patterns = bannerMeta.getPatterns();
@@ -317,6 +366,10 @@ public class ItemBuilder {
 	}
 
 	public DyeColor getBannerBaseColor() {
+
+		if (!(meta instanceof BannerMeta))
+			throw new IllegalArgumentException(
+					"Can't invoke method on this AdvancedItem! Required meta: BannerMeta");
 
 		BannerMeta bannerMeta = (BannerMeta) meta;
 		DyeColor color = bannerMeta.getBaseColor();
@@ -362,6 +415,10 @@ public class ItemBuilder {
 
 	public boolean hasBookAuthor() {
 
+		if (!(meta instanceof BookMeta))
+			throw new IllegalArgumentException(
+					"Can't invoke method on this AdvancedItem! Required meta: BookMeta");
+
 		BookMeta bookMeta = (BookMeta) meta;
 
 		if (!bookMeta.hasAuthor()) {
@@ -374,6 +431,10 @@ public class ItemBuilder {
 
 	public boolean hasBookPages() {
 
+		if (!(meta instanceof BookMeta))
+			throw new IllegalArgumentException(
+					"Can't invoke method on this AdvancedItem! Required meta: BookMeta");
+
 		BookMeta bookMeta = (BookMeta) meta;
 
 		if (!bookMeta.hasPages()) {
@@ -385,6 +446,10 @@ public class ItemBuilder {
 	}
 
 	public boolean hasBookTitle() {
+
+		if (!(meta instanceof BookMeta))
+			throw new IllegalArgumentException(
+					"Can't invoke method on this AdvancedItem! Required meta: BookMeta");
 
 		BookMeta bookMeta = (BookMeta) meta;
 
