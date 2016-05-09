@@ -30,7 +30,6 @@ public class ItemBuilder {
 	private ItemMeta meta = null;
 
 	public ItemBuilder(ItemStack item) {
-		this.item = item;
 		this.createItem(item);
 	}
 
@@ -41,9 +40,9 @@ public class ItemBuilder {
 	@Nullable
 	private ItemBuilder createItem(Material material) {
 
-		ItemStack item = new ItemStack(material);
-		this.item = item;
-
+		this.item = new ItemStack(material);
+		this.meta = item.getItemMeta();
+		
 		return this;
 
 	}
@@ -51,16 +50,14 @@ public class ItemBuilder {
 	@Nullable
 	private ItemBuilder createItem(ItemStack item) {
 
-		item = new ItemStack(item);
-		this.item = item;
+		this.item = item.clone();
+		this.meta = item.getItemMeta();
 
 		return this;
 	}
 
 	public ItemBuilder setName(String name) {
 
-		ItemMeta meta = this.item.getItemMeta();
-		this.meta = meta;
 		name = ChatColor.translateAlternateColorCodes('&', name);
 		meta.setDisplayName(name);
 
@@ -68,18 +65,18 @@ public class ItemBuilder {
 	}
 
 	public ItemBuilder setLore(List<String> lore) {
-
-		ItemMeta meta = this.item.getItemMeta();
-		this.meta = meta;
-		meta.setLore(lore);
+		
+		List<String> coloredLore = new ArrayList<String>(lore.size());
+		for(String str:lore){
+			coloredLore.add(ChatColor.translateAlternateColorCodes('&', str));
+		}
+		meta.setLore(coloredLore);
 
 		return this;
 	}
 
 	public ItemBuilder addEnchant(Enchantment enchantment, int value, boolean bool) {
 
-		ItemMeta meta = this.item.getItemMeta();
-		this.meta = meta;
 		meta.addEnchant(enchantment, value, bool);
 
 		return this;
@@ -87,8 +84,6 @@ public class ItemBuilder {
 
 	public ItemBuilder removeEnchant(Enchantment enchantment) {
 
-		ItemMeta meta = this.item.getItemMeta();
-		this.meta = meta;
 		meta.removeEnchant(enchantment);
 
 		return this;
@@ -96,8 +91,6 @@ public class ItemBuilder {
 
 	public ItemBuilder addItemFlag(ItemFlag flag) {
 
-		ItemMeta meta = this.item.getItemMeta();
-		this.meta = meta;
 		meta.addItemFlags(flag);
 
 		return this;
@@ -106,8 +99,6 @@ public class ItemBuilder {
 
 	public ItemBuilder removeItemFlag(ItemFlag flag) {
 
-		ItemMeta meta = this.item.getItemMeta();
-		this.meta = meta;
 		meta.removeItemFlags(flag);
 
 		return this;
@@ -123,9 +114,7 @@ public class ItemBuilder {
 
 	public ItemBuilder setUnbreakable(boolean unbreakable) {
 
-		ItemMeta meta = this.item.getItemMeta();
-		this.meta = meta;
-		meta.spigot().setUnbreakable(true);
+		meta.spigot().setUnbreakable(unbreakable);
 
 		return this;
 	}
@@ -137,14 +126,7 @@ public class ItemBuilder {
 		return this;
 	}
 
-	public ItemBuilder setItemMeta() {
-
-		item.setItemMeta(meta);
-
-		return this;
-	}
-
-	public ItemBuilder setLeatherArmorColor(Color color) {
+	public ItemBuilder setLeatherArmorColor(Color color) throws IllegalArgumentException{
 
 		if (!(meta instanceof LeatherArmorMeta))
 			throw new IllegalArgumentException(
@@ -229,175 +211,116 @@ public class ItemBuilder {
 
 	public String getName() {
 
-		ItemMeta meta = this.item.getItemMeta();
-		this.meta = meta;
-		String name = meta.getDisplayName();
-
-		return name;
+		return meta.getDisplayName();
 
 	}
 
 	public Map<Enchantment, Integer> getEnchants() {
 
-		ItemMeta meta = this.item.getItemMeta();
-		this.meta = meta;
-		Map<Enchantment, Integer> enchants = meta.getEnchants();
-
-		return enchants;
+		return meta.getEnchants();
 
 	}
 
 	public List<String> getLore() {
 
-		ItemMeta meta = this.item.getItemMeta();
-		this.meta = meta;
-		List<String> list = meta.getLore();
-
-		return list;
+		return meta.getLore();
 
 	}
 
 	public Set<ItemFlag> getItemFlags() {
 
-		ItemMeta meta = this.item.getItemMeta();
-		this.meta = meta;
-		Set<ItemFlag> flags = meta.getItemFlags();
-
-		return flags;
+		return meta.getItemFlags();
 
 	}
 
-	public int getBookPage(int pageNumber) {
+	public String getBookPage(int pageNumber) {
 
-		BookMeta bookMeta = (BookMeta) meta;
-		bookMeta.getPage(pageNumber);
+		return ((BookMeta) meta).getPage(pageNumber);
 
-		return pageNumber;
 	}
 
 	public int getBookPageCount() {
 
-		BookMeta bookMeta = (BookMeta) meta;
-		int pageCount = bookMeta.getPageCount();
+		return ((BookMeta) meta).getPages().size();
 
-		return pageCount;
 	}
 
 	public List<String> getBookPages() {
 
-		BookMeta bookMeta = (BookMeta) meta;
-		List<String> pages = bookMeta.getPages();
+		return ((BookMeta) meta).getPages();
 
-		return pages;
 	}
 
 	public String getBookAuthor() {
 
-		BookMeta bookMeta = (BookMeta) meta;
-		String author = bookMeta.getAuthor();
+		return ((BookMeta) meta).getAuthor();
 
-		return author;
 	}
 
 	public String getBookTitle() {
 
-		BookMeta bookMeta = (BookMeta) meta;
-		String title = bookMeta.getTitle();
+		return ((BookMeta) meta).getTitle();
 
-		return title;
 	}
 
 	public List<Pattern> getBannerPatterns() {
 
-		BannerMeta bannerMeta = (BannerMeta) meta;
-		List<Pattern> patterns = bannerMeta.getPatterns();
-
-		return patterns;
+		return ((BannerMeta) meta).getPatterns();
 
 	}
 
 	public DyeColor getBannerBaseColor() {
 
-		BannerMeta bannerMeta = (BannerMeta) meta;
-		DyeColor color = bannerMeta.getBaseColor();
+		return ((BannerMeta) meta).getBaseColor();
 
-		return color;
-	}
-
-	public ItemStack clone() {
-		return item.clone();
 	}
 
 	public boolean hasItemFlag(ItemFlag flag) {
 
-		if (!getItemFlags().contains(flag)) {
-			return false;
-		} else {
-			return true;
-		}
+		return(getItemFlags().contains(flag));
 
 	}
 
 	public boolean hasEnchant(Enchantment enchant) {
 
-		if (!getEnchants().containsKey(enchant)) {
-			return false;
-		} else {
-			return true;
-		}
+		return (!getEnchants().containsKey(enchant));
 
 	}
 
 	public boolean hasLore() {
-
-		ItemMeta meta = item.getItemMeta();
-		this.meta = meta;
-		if (!meta.hasLore()) {
-			return false;
-		} else {
-			return true;
-		}
-
+		
+		return meta.hasLore();
+		
 	}
 
 	public boolean hasBookAuthor() {
-
-		BookMeta bookMeta = (BookMeta) meta;
-
-		if (!bookMeta.hasAuthor()) {
-			return false;
-		} else {
-			return true;
-		}
-
+		
+		return ((BookMeta) meta).hasAuthor();
+		
 	}
 
 	public boolean hasBookPages() {
-
-		BookMeta bookMeta = (BookMeta) meta;
-
-		if (!bookMeta.hasPages()) {
-			return false;
-		} else {
-			return true;
-		}
-
+		
+		return ((BookMeta) meta).hasPages();
+		
 	}
 
 	public boolean hasBookTitle() {
-
-		BookMeta bookMeta = (BookMeta) meta;
-
-		if (!bookMeta.hasTitle()) {
-			return false;
-		} else {
-			return true;
-		}
-
+		
+		return ((BookMeta) meta).hasTitle();
+		
 	}
 
-	public void addToInventory(Inventory inv) {
-		inv.addItem(item.clone());
-	}
+	public ItemStack clone() {
 
+		return item.clone();
+
+	}
+	
+	public ItemStack build(){
+		
+		item.setItemMeta(meta);
+		return item;
+		
+	}
 }
