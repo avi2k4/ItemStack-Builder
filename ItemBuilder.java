@@ -26,28 +26,23 @@ import org.bukkit.material.MaterialData;
 import net.md_5.bungee.api.ChatColor;
 import net.minecraft.server.v1_8_R3.NBTTagByte;
 import net.minecraft.server.v1_8_R3.NBTTagCompound;
+import net.minecraft.server.v1_8_R3.NBTTagList;
 
 public class ItemBuilder {
 
 	private ItemStack item = null;
 	private ItemMeta meta = null;
 
+	private final boolean hasItemMeta;
+
 	public ItemBuilder(ItemStack item) {
 		this.item = item;
+		this.hasItemMeta = item.hasItemMeta();
 		this.createItem(item);
 	}
 
 	public ItemBuilder(Material material) {
-		this.createItem(material);
-	}
-
-	private ItemBuilder createItem(Material material) {
-
-		ItemStack item = new ItemStack(material);
-		this.item = item;
-
-		return this;
-
+		this(new ItemStack(material));
 	}
 
 	private ItemBuilder createItem(ItemStack item) {
@@ -60,6 +55,7 @@ public class ItemBuilder {
 
 	public ItemBuilder setName(String name) {
 
+		throwItemMetaException();
 		ItemMeta meta = this.item.getItemMeta();
 		this.meta = meta;
 		name = ChatColor.translateAlternateColorCodes('&', name);
@@ -70,6 +66,8 @@ public class ItemBuilder {
 
 	public ItemBuilder setLore(List<String> lore) {
 
+		throwItemMetaException();
+
 		ItemMeta meta = this.item.getItemMeta();
 		this.meta = meta;
 		meta.setLore(lore);
@@ -79,6 +77,8 @@ public class ItemBuilder {
 
 	public ItemBuilder addEnchant(Enchantment enchantment, int value, boolean bool) {
 
+		throwItemMetaException();
+
 		ItemMeta meta = this.item.getItemMeta();
 		this.meta = meta;
 		meta.addEnchant(enchantment, value, bool);
@@ -87,6 +87,8 @@ public class ItemBuilder {
 	}
 
 	public ItemBuilder removeEnchant(Enchantment enchantment) {
+
+		throwItemMetaException();
 
 		ItemMeta meta = this.item.getItemMeta();
 		this.meta = meta;
@@ -133,6 +135,7 @@ public class ItemBuilder {
 
 	public ItemBuilder setMaterialData(MaterialData data) {
 
+		throwItemMetaException();
 		item.setData(data);
 
 		return this;
@@ -140,9 +143,9 @@ public class ItemBuilder {
 
 	public ItemBuilder setLeatherArmorColor(Color color) {
 
-		if (!(meta instanceof LeatherArmorMeta))
-			throw new IllegalArgumentException(
-					"Can't invoke method on this AdvancedItem! Required meta: LeatherArmorMeta");
+		throwItemMetaException();
+		throwUnsupportedMetaException(LeatherArmorMeta.class,
+				"Cannot change the color of a non-leather armor ItemStack");
 		LeatherArmorMeta leatherMeta = (LeatherArmorMeta) meta;
 		leatherMeta.setColor(color);
 		item.setItemMeta(leatherMeta);
@@ -151,12 +154,16 @@ public class ItemBuilder {
 	}
 
 	public ItemBuilder setAmount(int amount) {
+
 		item.setAmount(amount);
 
 		return this;
 	}
 
 	public ItemBuilder addBookPage(String... page) {
+
+		throwItemMetaException();
+		throwUnsupportedMetaException(BookMeta.class, "Cannot set the banner base color to a non-banner ItemStack");
 
 		BookMeta bookMeta = (BookMeta) meta;
 		bookMeta.addPage(page);
@@ -167,6 +174,9 @@ public class ItemBuilder {
 
 	public ItemBuilder setBookPage(int page, String data) {
 
+		throwItemMetaException();
+		throwUnsupportedMetaException(BookMeta.class, "Cannot set the banner base color to a non-banner ItemStack");
+
 		BookMeta bookMeta = (BookMeta) meta;
 		bookMeta.setPage(page, data);
 		item.setItemMeta(bookMeta);
@@ -175,6 +185,9 @@ public class ItemBuilder {
 	}
 
 	public ItemBuilder setTitle(String title) {
+
+		throwItemMetaException();
+		throwUnsupportedMetaException(BannerMeta.class, "Cannot set the banner base color to a non-banner ItemStack");
 
 		BookMeta bookMeta = (BookMeta) meta;
 		bookMeta.setTitle(title);
@@ -185,6 +198,9 @@ public class ItemBuilder {
 
 	public ItemBuilder setBannerPattern(int index, Pattern pattern) {
 
+		throwItemMetaException();
+		throwUnsupportedMetaException(BannerMeta.class, "Cannot set the banner base color to a non-banner ItemStack");
+
 		BannerMeta bannerMeta = (BannerMeta) meta;
 		bannerMeta.setPattern(index, pattern);
 		item.setItemMeta(bannerMeta);
@@ -193,6 +209,9 @@ public class ItemBuilder {
 	}
 
 	public ItemBuilder setBannerBaseColor(DyeColor color) {
+
+		throwItemMetaException();
+		throwUnsupportedMetaException(BannerMeta.class, "Cannot set the banner base color to a non-banner ItemStack");
 
 		BannerMeta bannerMeta = (BannerMeta) meta;
 		bannerMeta.setBaseColor(color);
@@ -244,6 +263,32 @@ public class ItemBuilder {
 
 		SkullMeta skullMeta = (SkullMeta) meta;
 		skullMeta.setOwner(Bukkit.getPlayer(uuid).getName());
+
+		return this;
+	}
+
+	public ItemBuilder setGlowing(boolean bool) {
+
+		ItemMeta meta = item.getItemMeta();
+		this.meta = meta;
+
+		if (!item.getItemMeta().hasEnchants()) {
+			meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+		} else {
+
+			net.minecraft.server.v1_8_R3.ItemStack nmsStack = CraftItemStack.asNMSCopy(item);
+			NBTTagCompound tag = null;
+			if (!nmsStack.hasTag()) {
+				tag = new NBTTagCompound();
+				nmsStack.setTag(tag);
+			}
+			if (tag == null)
+				tag = nmsStack.getTag();
+			NBTTagList ench = new NBTTagList();
+			tag.set("ench", ench);
+			nmsStack.setTag(tag);
+
+		}
 
 		return this;
 	}
@@ -443,6 +488,19 @@ public class ItemBuilder {
 
 		item.setItemMeta(this.meta);
 
+	}
+
+	private void throwItemMetaException() {
+		if (!(hasItemMeta)) {
+			throw new UnsupportedOperationException(
+					"Material of type " + item.getType().toString() + " cannot have ItemMeta assigned to it.");
+		}
+	}
+
+	private void throwUnsupportedMetaException(final Class<?> clazz, final String error) {
+		if (!(clazz.isAssignableFrom(meta.getClass()))) {
+			throw new UnsupportedOperationException(error);
+		}
 	}
 
 }
