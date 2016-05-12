@@ -6,14 +6,17 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.block.banner.Pattern;
 import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BannerMeta;
@@ -23,8 +26,6 @@ import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.material.MaterialData;
 
-import net.md_5.bungee.api.ChatColor;
-import net.minecraft.server.v1_8_R3.NBTTagByte;
 import net.minecraft.server.v1_8_R3.NBTTagCompound;
 import net.minecraft.server.v1_8_R3.NBTTagList;
 
@@ -32,6 +33,7 @@ public class ItemBuilder {
 
 	private ItemStack item = null;
 	private ItemMeta meta = null;
+	private boolean itemVisibility;
 
 	private final boolean hasItemMeta;
 
@@ -117,9 +119,9 @@ public class ItemBuilder {
 
 	}
 
-	public ItemBuilder setDurablility(short durability) {
+	public ItemBuilder setDurablility(double d) {
 
-		item.setDurability(durability);
+		item.setDurability((short) d);
 
 		return this;
 	}
@@ -196,6 +198,30 @@ public class ItemBuilder {
 		return this;
 	}
 
+	public ItemBuilder setBookOwner(String player) {
+
+		BookMeta bookMeta = (BookMeta) meta;
+		bookMeta.setAuthor(player);
+
+		return this;
+	}
+
+	public ItemBuilder setBookOwner(Player player) {
+
+		BookMeta bookMeta = (BookMeta) meta;
+		bookMeta.setAuthor(player.getName());
+
+		return this;
+	}
+
+	public ItemBuilder setBookOwner(UUID uuid) {
+
+		BookMeta bookMeta = (BookMeta) meta;
+		bookMeta.setAuthor(Bukkit.getPlayer(uuid).toString());
+
+		return this;
+	}
+
 	public ItemBuilder setBannerPattern(int index, Pattern pattern) {
 
 		throwItemMetaException();
@@ -220,29 +246,6 @@ public class ItemBuilder {
 		return this;
 	}
 
-	public ItemBuilder setNBTTagCompound(String NBTTagCompound) {
-
-		net.minecraft.server.v1_8_R3.ItemStack stack = CraftItemStack.asNMSCopy(item);
-		NBTTagCompound tag = stack.hasTag() ? stack.getTag() : new NBTTagCompound();
-		tag.set(NBTTagCompound, new NBTTagByte((byte) 1));
-		stack.setTag(tag);
-		item = CraftItemStack.asBukkitCopy(stack);
-
-		return this;
-	}
-
-	public ItemBuilder setItemAge(byte age) {
-
-		net.minecraft.server.v1_8_R3.ItemStack stack = CraftItemStack.asNMSCopy(item);
-		NBTTagCompound tag = stack.hasTag() ? stack.getTag() : new NBTTagCompound();
-		tag.set("Age", new NBTTagByte(age));
-		stack.setTag(tag);
-		item = CraftItemStack.asBukkitCopy(stack);
-
-		return this;
-
-	}
-
 	public ItemBuilder setSkullOwner(String player) {
 
 		SkullMeta skullMeta = (SkullMeta) meta;
@@ -263,6 +266,13 @@ public class ItemBuilder {
 
 		SkullMeta skullMeta = (SkullMeta) meta;
 		skullMeta.setOwner(Bukkit.getPlayer(uuid).getName());
+
+		return this;
+	}
+
+	public ItemBuilder setItemDropNameVisibile(boolean bool) {
+
+		this.itemVisibility = bool;
 
 		return this;
 	}
@@ -480,10 +490,6 @@ public class ItemBuilder {
 		}
 	}
 
-	public void addToInventory(Inventory inv) {
-		inv.addItem(item.clone());
-	}
-
 	public void buildItem() {
 
 		item.setItemMeta(this.meta);
@@ -500,6 +506,23 @@ public class ItemBuilder {
 	private void throwUnsupportedMetaException(final Class<?> clazz, final String error) {
 		if (!(clazz.isAssignableFrom(meta.getClass()))) {
 			throw new UnsupportedOperationException(error);
+		}
+	}
+
+	@EventHandler
+	protected void setItemDropNameVisible(PlayerDropItemEvent e) {
+
+		Entity entity = e.getItemDrop();
+
+		if (itemVisibility == true) {
+			if (entity.getName() != meta.getDisplayName()) {
+				return;
+			} else {
+
+				entity.setCustomName(entity.getName());
+				entity.setCustomNameVisible(true);
+
+			}
 		}
 	}
 
